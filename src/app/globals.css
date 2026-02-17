@@ -12,6 +12,14 @@
   --accent-hallucinated: #F59E0B;
 }
 
+.light {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --secondary: #475569;
+}
+
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -29,6 +37,7 @@ body {
   color: var(--foreground);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .glass {
@@ -39,8 +48,9 @@ body {
 }
 
 .glass-hover:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--card);
+  opacity: 0.8;
+  border-color: var(--card-border);
   transition: all 0.3s ease;
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Shield, Zap, Lock, Code, Cpu, Globe, ArrowRight, ChevronRight, PlayCircle } from 'lucide-react';
+import { Shield, Zap, Lock, Code, Cpu, Globe, ArrowRight, ChevronRight, PlayCircle, Chrome } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -145,6 +145,51 @@ export default function LandingPage() {
                                 <p className="text-secondary leading-relaxed">{feature.text}</p>
                             </motion.div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Download Extensions Section */}
+            <section id="download" className="py-20 px-8 relative overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 blur-[100px] rounded-full"></div>
+                <div className="max-w-4xl mx-auto text-center space-y-12 relative z-10">
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-bold">Secure Your Pipeline Anywhere</h2>
+                        <p className="text-secondary text-lg">Download our extensions to integrate CodeTrust AI directly into your browsing and development workflow.</p>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                        <a
+                            href="https://chromewebstore.google.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full md:w-auto flex items-center gap-4 px-8 py-6 glass border border-card-border hover:border-primary/50 hover:bg-card transition-all rounded-2xl group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Chrome className="w-8 h-8 text-orange-500" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary">Available on Web Store</p>
+                                <p className="text-xl font-bold">Chrome Extension</p>
+                            </div>
+                        </a>
+
+                        <a
+                            href="https://marketplace.visualstudio.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full md:w-auto flex items-center gap-4 px-8 py-6 glass border border-card-border hover:border-primary/50 hover:bg-card transition-all rounded-2xl group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg className="w-8 h-8 text-blue-500 fill-current" viewBox="0 0 24 24">
+                                    <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 9.33-4.12-2.54a1.491 1.491 0 0 0-1.921.22L.21 8.765a1.5 1.5 0 0 0 .22 2.126l4.64 3.73-4.64 3.73a1.5 1.5 0 0 0-.22 2.126l.794 1.254a1.491 1.491 0 0 0 1.921.22l4.12-2.54 9.46 9.33a1.494 1.494 0 0 0 1.705.29l4.94-2.377a1.5 1.5 0 0 0 .866-1.353V3.94a1.5 1.5 0 0 0-.866-1.353zM15 12l-9-5.55V17.55L15 12z" />
+                                </svg>
+                            </div>
+                            <div className="text-left">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary">Available on Marketplace</p>
+                                <p className="text-xl font-bold">VS Code Extension</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </section>

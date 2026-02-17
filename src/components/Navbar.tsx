@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Bell, User, Menu, Settings, LogOut, Shield, ChevronDown, Sparkles } from 'lucide-react';
+import { Search, Bell, User, Menu, Settings, LogOut, Shield, ChevronDown, Sparkles, Download, Chrome } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -12,6 +13,7 @@ interface NavbarProps {
 export default function Navbar({ onMenuClick }: NavbarProps) {
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+    const [showDownload, setShowDownload] = useState(false);
 
     return (
         <header className="fixed top-0 left-0 md:left-64 right-0 h-16 glass border-b border-card-border z-20 backdrop-blur-xl">
@@ -66,7 +68,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute right-0 mt-3 w-80 bg-[#161F31] rounded-2xl border border-card-border shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
+                                    className="absolute right-0 mt-3 w-80 bg-[#161F31] dark:bg-[#161F31] light:bg-white rounded-2xl border border-card-border shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
                                 >
                                     <div className="p-4 border-b border-card-border bg-card/20 flex items-center justify-between">
                                         <h3 className="font-black text-xs uppercase tracking-widest">Alert Center</h3>
@@ -102,6 +104,69 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         </AnimatePresence>
                     </div>
 
+                    {/* Download Extensions */}
+                    <div className="relative">
+                        <button
+                            onClick={() => {
+                                setShowDownload(!showDownload);
+                                setShowNotifications(false);
+                                setShowProfile(false);
+                            }}
+                            className={`p-2.5 rounded-xl transition-all ${showDownload ? 'bg-primary/20 text-primary' : 'hover:bg-card/50 text-secondary'}`}
+                            title="Download Extensions"
+                        >
+                            <Download className="w-5 h-5" />
+                        </button>
+
+                        <AnimatePresence>
+                            {showDownload && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute right-0 mt-3 w-64 bg-[#161F31] dark:bg-[#161F31] light:bg-white rounded-2xl border border-card-border shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
+                                >
+                                    <div className="p-4 border-b border-card-border bg-card/20">
+                                        <h3 className="font-black text-xs uppercase tracking-widest">Get Extensions</h3>
+                                    </div>
+                                    <div className="p-2 space-y-1">
+                                        <a
+                                            href="https://chromewebstore.google.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-card/50 transition-colors group"
+                                        >
+                                            <Chrome className="w-5 h-5 text-secondary group-hover:text-primary" />
+                                            <div>
+                                                <p className="text-xs font-bold">Chrome Extension</p>
+                                                <p className="text-[9px] text-secondary">Analyze code in browser</p>
+                                            </div>
+                                        </a>
+                                        <a
+                                            href="https://marketplace.visualstudio.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-card/50 transition-colors group"
+                                        >
+                                            <div className="w-5 h-5 flex items-center justify-center">
+                                                <svg className="w-4 h-4 text-secondary group-hover:text-primary fill-current" viewBox="0 0 24 24">
+                                                    <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 9.33-4.12-2.54a1.491 1.491 0 0 0-1.921.22L.21 8.765a1.5 1.5 0 0 0 .22 2.126l4.64 3.73-4.64 3.73a1.5 1.5 0 0 0-.22 2.126l.794 1.254a1.491 1.491 0 0 0 1.921.22l4.12-2.54 9.46 9.33a1.494 1.494 0 0 0 1.705.29l4.94-2.377a1.5 1.5 0 0 0 .866-1.353V3.94a1.5 1.5 0 0 0-.866-1.353zM15 12l-9-5.55V17.55L15 12z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold">VS Code Extension</p>
+                                                <p className="text-[9px] text-secondary">IDE Integration</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Theme Toggle */}
+                    <ThemeToggle />
+
                     {/* Profile */}
                     <div className="relative">
                         <div
@@ -127,7 +192,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute right-0 mt-3 w-56 bg-[#161F31] rounded-2xl border border-card-border shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
+                                    className="absolute right-0 mt-3 w-56 bg-[#161F31] dark:bg-[#161F31] light:bg-white rounded-2xl border border-card-border shadow-2xl overflow-hidden z-[100] backdrop-blur-xl"
                                 >
                                     <div className="p-4 border-b border-card-border bg-card/20">
                                         <p className="text-[10px] text-secondary uppercase font-black tracking-widest mb-1">Signed in as</p>
