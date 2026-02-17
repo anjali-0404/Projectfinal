@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Bell, Shield, Key, Globe, LogOut, Check, Save, Zap, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Bell, Shield, Key, Globe, LogOut, Check, Save, Zap, Activity, Cpu, Database, Network as NetworkIcon, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 function SettingToggle({ label, value, initialEnabled = false, desc }: { label: string, value?: string, initialEnabled?: boolean, desc?: string }) {
+    // ... existing SettingToggle code ...
     const [enabled, setEnabled] = useState(initialEnabled);
     return (
         <div className="p-5 glass rounded-2xl border border-card-border flex items-center justify-between group hover:border-primary/20 transition-all">
@@ -26,9 +29,17 @@ function SettingToggle({ label, value, initialEnabled = false, desc }: { label: 
 }
 
 export default function SettingsPage() {
-    const [activeTab, setActiveTab] = useState('profile');
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const [activeTab, setActiveTab] = useState(tabParam || 'profile');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+
+    useEffect(() => {
+        if (tabParam) {
+            setActiveTab(tabParam);
+        }
+    }, [tabParam]);
 
     const tabs = [
         { id: 'profile', icon: User, label: 'Profile' },
@@ -36,6 +47,7 @@ export default function SettingsPage() {
         { id: 'api', icon: Key, label: 'API Keys' },
         { id: 'notifications', icon: Bell, label: 'Alerts' },
         { id: 'network', icon: Globe, label: 'Network' },
+        { id: 'advanced', icon: Sparkles, label: 'Advanced' },
     ];
 
     const handleSave = () => {
@@ -108,9 +120,9 @@ export default function SettingsPage() {
                     ))}
 
                     <div className="pt-8 px-4">
-                        <button className="w-full flex items-center gap-3 p-4 rounded-2xl text-vulnerable hover:bg-vulnerable/10 transition-all font-black text-xs uppercase tracking-widest border border-vulnerable/20">
+                        <Link href="/login" className="w-full flex items-center gap-3 p-4 rounded-2xl text-vulnerable hover:bg-vulnerable/10 transition-all font-black text-xs uppercase tracking-widest border border-vulnerable/20">
                             <LogOut className="w-4 h-4" /> Terminate Session
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -231,7 +243,60 @@ export default function SettingsPage() {
                                 </div>
                             )}
 
-                            {!(activeTab === 'profile' || activeTab === 'security' || activeTab === 'api' || activeTab === 'notifications') && (
+                            {activeTab === 'network' && (
+                                <div className="space-y-8">
+                                    <div className="flex items-center justify-between border-b border-card-border pb-6">
+                                        <div className="space-y-1">
+                                            <h3 className="text-xl font-black italic">Network Topology</h3>
+                                            <p className="text-xs text-secondary">Configure your scanners to route through custom enterprise infrastructure.</p>
+                                        </div>
+                                        <NetworkIcon className="w-8 h-8 text-primary/40" />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {[
+                                            { label: 'VPN Tunneling', desc: 'Route all scans through internal VPN.', active: false },
+                                            { label: 'Dedicated IP', desc: 'Use a static IP for all outbound requests.', active: true },
+                                            { label: 'TLS Inspection', desc: 'Allow deep packet analysis for scanning.', active: true },
+                                            { label: 'Custom DNS', desc: 'Resolve private hostnames during audits.', active: false },
+                                        ].map((n, i) => (
+                                            <SettingToggle key={i} label={n.label} desc={n.desc} initialEnabled={n.active} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'advanced' && (
+                                <div className="space-y-8">
+                                    <div className="p-6 rounded-2xl border border-primary/20 bg-primary/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                                        <div className="space-y-1 text-center sm:text-left">
+                                            <p className="text-sm font-black italic flex items-center justify-center sm:justify-start gap-2">
+                                                <Sparkles className="w-4 h-4 text-primary" /> Neural Optimizer v4.0
+                                            </p>
+                                            <p className="text-xs text-secondary leading-relaxed">Early access to experimental AI detection models and hardware acceleration hooks.</p>
+                                        </div>
+                                        <button className="px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/10">Request Access</button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {[
+                                            { label: 'Deep Trace mode', desc: 'Collect verbose execution graphs.', active: false },
+                                            { label: 'Hallucination Beta', desc: 'Advanced detection for non-existent code.', active: true },
+                                            { label: 'Hardware Acceleration', desc: 'Use local CUDA/MPS for faster scans.', active: false },
+                                            { label: 'Custom Training', desc: 'Fine-tune models on your codebase.', active: false },
+                                        ].map((n, i) => (
+                                            <SettingToggle key={i} label={n.label} desc={n.desc} initialEnabled={n.active} />
+                                        ))}
+                                    </div>
+
+                                    <div className="p-4 bg-vulnerable/5 border border-vulnerable/20 rounded-xl">
+                                        <p className="text-[10px] text-vulnerable text-center font-bold uppercase tracking-widest">
+                                            Caution: Advanced features may impact scan stability.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {!(activeTab === 'profile' || activeTab === 'security' || activeTab === 'api' || activeTab === 'notifications' || activeTab === 'network' || activeTab === 'advanced') && (
                                 <div className="flex-1 flex flex-col items-center justify-center p-12 text-center space-y-4">
                                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 animate-pulse">
                                         <Activity className="w-8 h-8" />

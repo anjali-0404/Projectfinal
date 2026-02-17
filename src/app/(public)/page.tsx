@@ -19,8 +19,8 @@ export default function LandingPage() {
                     <a href="#features" className="hover:text-foreground transition-colors">Features</a>
                     <a href="#security" className="hover:text-foreground transition-colors">Security</a>
                     <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
-                    <Link href="/dashboard" className="px-5 py-2 bg-foreground text-background rounded-full hover:bg-gray-200 transition-colors">
-                        Get Started
+                    <Link href="/login" className="px-5 py-2 bg-foreground text-background rounded-full hover:bg-gray-200 transition-colors">
+                        Sign In
                     </Link>
                 </div>
             </nav>
@@ -66,16 +66,17 @@ export default function LandingPage() {
                             className="flex flex-col sm:flex-row items-center gap-4"
                         >
                             <Link
-                                href="/dashboard"
+                                href="/signup"
                                 className="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20"
                             >
-                                Analyze Code <ArrowRight className="w-5 h-5" />
+                                Get Started Free <ArrowRight className="w-5 h-5" />
                             </Link>
-                            <button
+                            <Link
+                                href="/signup"
                                 className="w-full sm:w-auto px-8 py-4 glass border border-card-border hover:bg-card text-foreground rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
                             >
                                 <PlayCircle className="w-5 h-5" /> View Demo
-                            </button>
+                            </Link>
                         </motion.div>
                     </div>
 

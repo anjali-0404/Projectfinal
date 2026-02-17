@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Search, Bell, User, Menu, Settings, LogOut, Shield, ChevronDown, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface NavbarProps {
     onMenuClick: () => void;
@@ -134,23 +135,32 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                     </div>
                                     <div className="p-2">
                                         {[
-                                            { icon: User, label: 'Account Profile', color: 'foreground' },
-                                            { icon: Settings, label: 'Preferences', color: 'foreground' },
-                                            { icon: Sparkles, label: 'Advanced Features', color: 'primary' },
+                                            { icon: User, label: 'Account Profile', color: 'foreground', href: '/settings?tab=profile' },
+                                            { icon: Settings, label: 'Preferences', color: 'foreground', href: '/settings?tab=security' },
+                                            { icon: Sparkles, label: 'Advanced Features', color: 'primary', href: '/settings?tab=advanced' },
                                         ].map((item, i) => (
-                                            <button key={i} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-card/50 transition-colors text-left group">
+                                            <Link
+                                                key={i}
+                                                href={item.href}
+                                                onClick={() => setShowProfile(false)}
+                                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-card/50 transition-colors text-left group"
+                                            >
                                                 <item.icon className={`w-4 h-4 ${item.color === 'primary' ? 'text-primary' : 'text-secondary group-hover:text-foreground'
                                                     }`} />
                                                 <span className={`text-xs font-bold ${item.color === 'primary' ? 'text-primary' : 'text-secondary group-hover:text-foreground'
                                                     }`}>{item.label}</span>
-                                            </button>
+                                            </Link>
                                         ))}
                                     </div>
                                     <div className="p-2 border-t border-card-border/50">
-                                        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-vulnerable/10 hover:text-vulnerable transition-all text-left group">
+                                        <Link
+                                            href="/login"
+                                            onClick={() => setShowProfile(false)}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-vulnerable/10 hover:text-vulnerable transition-all text-left group"
+                                        >
                                             <LogOut className="w-4 h-4 text-secondary group-hover:text-vulnerable" />
                                             <span className="text-xs font-bold text-secondary group-hover:text-vulnerable">Log Out Session</span>
-                                        </button>
+                                        </Link>
                                     </div>
                                 </motion.div>
                             )}
