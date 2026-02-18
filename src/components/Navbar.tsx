@@ -149,8 +149,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-card/50 transition-colors group"
                                         >
                                             <div className="w-5 h-5 flex items-center justify-center">
-                                                <svg className="w-4 h-4 text-secondary group-hover:text-primary fill-current" viewBox="0 0 24 24">
-                                                    <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 9.33-4.12-2.54a1.491 1.491 0 0 0-1.921.22L.21 8.765a1.5 1.5 0 0 0 .22 2.126l4.64 3.73-4.64 3.73a1.5 1.5 0 0 0-.22 2.126l.794 1.254a1.491 1.491 0 0 0 1.921.22l4.12-2.54 9.46 9.33a1.494 1.494 0 0 0 1.705.29l4.94-2.377a1.5 1.5 0 0 0 .866-1.353V3.94a1.5 1.5 0 0 0-.866-1.353zM15 12l-9-5.55V17.55L15 12z" />
+                                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M23.15 2.587l-4.94-2.377c-.528-.254-1.153-.134-1.705.29l-9.46 9.33-4.12-2.54a1.493 1.493 0 00-1.921.22l-.794 1.254c-.45.541-.35 1.48.22 2.126l4.639 3.73-4.639 3.73a1.493 1.493 0 00-.22 2.126l.794 1.254c.449.541 1.278.616 1.921.22l4.12-2.54 9.46 9.33c.552.424 1.177.544 1.705.29l4.94-2.377c.528-.254.866-.757.866-1.353V3.94c0-.596-.338-1.099-.866-1.353z" fill="#0877b9" />
+                                                    <path d="M15 12l7.062 5.342c.31.235.438.497.438.718V8.658c0-.221-.128-.483-.438-.718L15 12z" fill="#34a9f4" />
+                                                    <path d="M6 17.55l9-5.55-9-5.55v11.1z" fill="#1f9ae0" />
                                                 </svg>
                                             </div>
                                             <div>

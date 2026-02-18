@@ -1,12 +1,53 @@
 'use client';
 
-import { Shield, AlertTriangle, CheckCircle, BarChart3, ArrowUpRight, ArrowRight, Play, ExternalLink, Activity, Target, Zap, Search, Filter, ArrowUpDown, ChevronRight, CheckCircle2, Clock, Download, FileText, Database, ShieldCheck, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import {
+    Shield, AlertTriangle, CheckCircle, BarChart3, ArrowUpRight,
+    ArrowRight, Play, ExternalLink, Activity, Target, Zap,
+    Search, Filter, ArrowUpDown, ChevronRight, CheckCircle2,
+    Clock, Download, FileText, Database, ShieldCheck, AlertCircle, Loader2
+} from 'lucide-react';
 
 export default function DashboardPage() {
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+
+    const handleGeneratePDF = () => {
+        setIsGeneratingPDF(true);
+        // Mock PDF generation delay
+        setTimeout(() => {
+            setIsGeneratingPDF(false);
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
+
+            // Trigger a dummy "download"
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJ...'; // Truncated dummy PDF data
+            link.download = `Security-Posture-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+            // Note: In a real app, we'd use a real PDF generation service
+            // link.click(); // Commented out to avoid actually downloading in the sandbox unless necessary
+        }, 2000);
+    };
+
     return (
         <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto relative overflow-hidden">
+            {/* Toast Notification Container */}
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: 20, x: '-50%' }}
+                        className="fixed bottom-10 left-1/2 glass px-8 py-4 rounded-3xl border border-primary/30 shadow-2xl shadow-primary/20 flex items-center gap-4 z-[100]"
+                    >
+                        <div className="w-2 h-2 rounded-full bg-primary animate-ping"></div>
+                        <span className="text-xs font-black uppercase tracking-widest text-foreground">Report Generated Successfully</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Background 3D Elements */}
             <div className="absolute inset-0 pointer-events-none -z-10">
                 <div className="absolute top-10 right-10 w-64 h-64 bg-primary/5 blur-[80px] rounded-full animate-float"></div>
@@ -27,8 +68,19 @@ export default function DashboardPage() {
                     <p className="text-secondary text-sm mt-3 max-w-xl font-medium">Real-time telemetry and forensic analysis of your multi-language codebase.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-6 py-3 glass border border-card-border rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-card transition-all active:scale-95">
-                        Generate PDF
+                    <button
+                        onClick={handleGeneratePDF}
+                        disabled={isGeneratingPDF}
+                        className={`px-6 py-3 glass border border-card-border rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-card transition-all active:scale-95 flex items-center gap-2 ${isGeneratingPDF ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        {isGeneratingPDF ? (
+                            <>
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Generating...
+                            </>
+                        ) : (
+                            'Generate PDF'
+                        )}
                     </button>
                     <Link href="/analyze" className="px-6 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 shadow-xl shadow-primary/20 transition-all active:scale-95">
                         <Play className="w-4 h-4 fill-current" /> New Scan
@@ -103,7 +155,7 @@ export default function DashboardPage() {
                                     <div className="text-right">
                                         <p className="text-[10px] text-secondary font-black uppercase tracking-widest mb-1 opacity-50">Risk Level</p>
                                         <p className={`text-xs font-black uppercase tracking-widest ${scan.type === 'vulnerable' ? 'text-vulnerable' :
-                                                scan.type === 'safe' ? 'text-safe' : 'text-hallucinated'
+                                            scan.type === 'safe' ? 'text-safe' : 'text-hallucinated'
                                             }`}>{scan.risk}</p>
                                     </div>
                                     <div className="p-3 rounded-xl border border-card-border group-hover:border-primary/40 group-hover:bg-primary/10 transition-all">
