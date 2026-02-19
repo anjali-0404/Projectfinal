@@ -5,9 +5,9 @@ import { User, Bell, Shield, Key, Globe, LogOut, Check, Save, Zap, Activity, Cpu
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 function SettingToggle({ label, value, initialEnabled = false, desc }: { label: string, value?: string, initialEnabled?: boolean, desc?: string }) {
-    // ... existing SettingToggle code ...
     const [enabled, setEnabled] = useState(initialEnabled);
     return (
         <div className="p-5 glass rounded-2xl border border-card-border flex items-center justify-between group hover:border-primary/20 transition-all">
@@ -35,11 +35,59 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
+    // 1. Pull in the session and the update function
+    const { data: session, update } = useSession();
+
+    // 2. Track the input states for saving to the DB
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [bio, setBio] = useState("");
+
+    // 3. Sync local state when the session loads
+    useEffect(() => {
+        if (session?.user) {
+            setName(session.user.name || "");
+            setEmail(session.user.email || "");
+            // If you add bio to the session callback later, you can pull it here:
+            // setBio(session.user.bio || "");
+        }
+    }, [session]);
+
+    const userInitials = name
+        ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+        : 'US';
+
     useEffect(() => {
         if (tabParam) {
             setActiveTab(tabParam);
         }
     }, [tabParam]);
+
+    // 4. The real save function hitting your new API route
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, bio })
+            });
+
+            if (res.ok) {
+                // Instantly update the UI without refreshing the page
+                await update({ name, email }); 
+                
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+            } else {
+                console.error("Failed to save profile");
+            }
+        } catch (error) {
+            console.error("Error saving:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const tabs = [
         { id: 'profile', icon: User, label: 'Profile' },
@@ -49,15 +97,6 @@ export default function SettingsPage() {
         { id: 'network', icon: Globe, label: 'Network' },
         { id: 'advanced', icon: Sparkles, label: 'Advanced' },
     ];
-
-    const handleSave = () => {
-        setSaving(true);
-        setTimeout(() => {
-            setSaving(false);
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
-        }, 1500);
-    };
 
     return (
         <div className="p-4 md:p-8 space-y-8 max-w-6xl mx-auto relative min-h-screen">
@@ -141,14 +180,14 @@ export default function SettingsPage() {
                                     <div className="flex flex-col sm:flex-row items-center gap-8 border-b border-card-border pb-8">
                                         <div className="relative group">
                                             <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-black shadow-2xl">
-                                                AR
+                                                {userInitials}
                                             </div>
                                             <button className="absolute -bottom-2 -right-2 p-2 bg-primary text-white rounded-xl shadow-xl hover:scale-110 transition-all">
                                                 <Activity className="w-4 h-4" />
                                             </button>
                                         </div>
                                         <div className="text-center sm:text-left space-y-2">
-                                            <h3 className="text-2xl font-black italic">Alex Rivera</h3>
+                                            <h3 className="text-2xl font-black italic">{name || "Loading Node..."}</h3>
                                             <p className="text-sm text-secondary font-medium uppercase tracking-[0.2em] opacity-60">Enterprise Security Administrator</p>
                                             <div className="flex gap-2 justify-center sm:justify-start">
                                                 <span className="px-3 py-1 bg-safe/10 text-safe text-[10px] font-black rounded-full border border-safe/20">VERIFIED NODE</span>
@@ -160,17 +199,33 @@ export default function SettingsPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Display Descriptor</label>
-                                            <input type="text" defaultValue="Alex Rivera" className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" />
+                                            <input 
+                                                type="text" 
+                                                value={name} 
+                                                onChange={(e) => setName(e.target.value)}
+                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" 
+                                            />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Forensic Email</label>
-                                            <input type="email" defaultValue="arivera@codetrust.ai" className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" />
+                                            <input 
+                                                type="email" 
+                                                value={email} 
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" 
+                                            />
                                         </div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Operational Bio</label>
-                                        <textarea rows={3} defaultValue="Overseeing neural security audits for the legacy API gateway systems. Expert in forensic pattern matching." className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold resize-none" />
+                                        <textarea 
+                                            rows={3} 
+                                            value={bio}
+                                            onChange={(e) => setBio(e.target.value)}
+                                            placeholder="Overseeing neural security audits for the legacy API gateway systems. Expert in forensic pattern matching." 
+                                            className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold resize-none" 
+                                        />
                                     </div>
                                 </div>
                             )}
