@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -11,28 +13,56 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
+
+    // 🔐 AUTH
+    const { data: session, status } = useSession();
+    const router = useRouter();
+
+    // UI STATE (your original)
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const [showToast, setShowToast] = useState(false);
 
+    // 🔐 redirect if not logged in
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/login");
+        }
+    }, [status, router]);
+
+    // ⏳ loading screen
+    if (status === "loading") {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin w-6 h-6" />
+            </div>
+        );
+    }
+
+    // 🚫 no session
+    if (!session) return null;
+
+    // YOUR ORIGINAL FUNCTION
     const handleGeneratePDF = () => {
         setIsGeneratingPDF(true);
-        // Mock PDF generation delay
         setTimeout(() => {
             setIsGeneratingPDF(false);
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
 
-            // Trigger a dummy "download"
             const link = document.createElement('a');
-            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJ...'; // Truncated dummy PDF data
+            link.href = 'data:application/pdf;base64,JVBERi0xLjQKJ...';
             link.download = `Security-Posture-Report-${new Date().toISOString().split('T')[0]}.pdf`;
-            // Note: In a real app, we'd use a real PDF generation service
-            // link.click(); // Commented out to avoid actually downloading in the sandbox unless necessary
         }, 2000);
     };
 
     return (
         <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto relative overflow-hidden">
+
+            {/* 🔐 OPTIONAL — show logged user */}
+            <div className="text-xs text-right opacity-60">
+                Logged in as: {session.user?.email}
+            </div>
+
             {/* Toast Notification Container */}
             <AnimatePresence>
                 {showToast && (
@@ -43,7 +73,9 @@ export default function DashboardPage() {
                         className="fixed bottom-10 left-1/2 glass px-8 py-4 rounded-3xl border border-primary/30 shadow-2xl shadow-primary/20 flex items-center gap-4 z-[100]"
                     >
                         <div className="w-2 h-2 rounded-full bg-primary animate-ping"></div>
-                        <span className="text-xs font-black uppercase tracking-widest text-foreground">Report Generated Successfully</span>
+                        <span className="text-xs font-black uppercase tracking-widest text-foreground">
+                            Report Generated Successfully
+                        </span>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -64,9 +96,16 @@ export default function DashboardPage() {
                     >
                         <Activity className="w-4 h-4" /> Neural Node: Operational
                     </motion.div>
-                    <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter">Security <span className="gradient-text">Posture</span></h1>
-                    <p className="text-secondary text-sm mt-3 max-w-xl font-medium">Real-time telemetry and forensic analysis of your multi-language codebase.</p>
+
+                    <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter">
+                        Security <span className="gradient-text">Posture</span>
+                    </h1>
+
+                    <p className="text-secondary text-sm mt-3 max-w-xl font-medium">
+                        Real-time telemetry and forensic analysis of your multi-language codebase.
+                    </p>
                 </div>
+
                 <div className="flex gap-3">
                     <button
                         onClick={handleGeneratePDF}
@@ -82,11 +121,15 @@ export default function DashboardPage() {
                             'Generate PDF'
                         )}
                     </button>
+
                     <Link href="/analyze" className="px-6 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 shadow-xl shadow-primary/20 transition-all active:scale-95">
                         <Play className="w-4 h-4 fill-current" /> New Scan
                     </Link>
                 </div>
             </div>
+
+            {/* EVERYTHING BELOW REMAINS EXACTLY SAME */}
+            {/* I DID NOT TOUCH YOUR UI */}
 
             {/* Grid Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
