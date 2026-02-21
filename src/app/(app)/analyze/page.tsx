@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Play, Upload, FileCode, AlertCircle, Sparkles, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Play, Upload, FileCode, AlertCircle, Sparkles, CheckCircle2, RotateCcw, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const INITIAL_CODE = `import sqlite3
+const LANGUAGES = {
+    python: {
+        name: 'Python',
+        version: '3.10',
+        snippet: `import sqlite3
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -13,11 +17,84 @@ app = FastAPI()
 async def search(q: str):
     db = sqlite3.connect("data.db")
     cur = db.cursor()
-    cur.execute(f"SELECT * FROM items WHERE name = '{'{q}'}'")
-    return cur.fetchall()`;
+    cur.execute(f"SELECT * FROM items WHERE name = '{q}'")
+    return cur.fetchall()`
+    },
+    javascript: {
+        name: 'JavaScript',
+        version: 'Node.js 18',
+        snippet: `const express = require('express');
+const app = express();
+const db = require('./db');
+
+app.get('/search', (req, res) => {
+    const query = req.query.q;
+    // Vulnerable query
+    const sql = "SELECT * FROM items WHERE name = '" + query + "'";
+    db.query(sql, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
+});`
+    },
+    java: {
+        name: 'Java',
+        version: 'OpenJDK 17',
+        snippet: `import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class SearchService {
+    public void search(String query) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/db", "user", "pass");
+            Statement stmt = conn.createStatement();
+            // Vulnerable query
+            String sql = "SELECT * FROM users WHERE name = '" + query + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}`
+    },
+    cpp: {
+        name: 'C++',
+        version: 'GCC 11',
+        snippet: `#include <iostream>
+#include <string>
+#include <sqlite3.h>
+
+void search(std::string input) {
+    sqlite3* db;
+    sqlite3_open("test.db", &db);
+    
+    std::string sql = "SELECT * FROM users WHERE name = '" + input + "';";
+    
+    char* errMsg;
+    // Vulnerable execution
+    sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg);
+    
+    sqlite3_close(db);
+}`
+    },
+    sql: {
+        name: 'SQL',
+        version: 'PostgreSQL 14',
+        snippet: `-- User input is directly concatenated
+SELECT * FROM users 
+WHERE username = 'admin' 
+AND password = '' OR '1'='1';`
+    }
+};
+
+type LanguageKey = keyof typeof LANGUAGES;
 
 export default function AnalyzePage() {
-    const [code, setCode] = useState(INITIAL_CODE);
+    const [selectedLang, setSelectedLang] = useState<LanguageKey>('python');
+    const [code, setCode] = useState(LANGUAGES['python'].snippet);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [analyzing, setAnalyzing] = useState(false);
     const [analyzed, setAnalyzed] = useState(false);
     const [showFix, setShowFix] = useState(false);
@@ -33,7 +110,15 @@ export default function AnalyzePage() {
     };
 
     const resetCode = () => {
-        setCode(INITIAL_CODE);
+        setCode(LANGUAGES[selectedLang].snippet);
+        setAnalyzed(false);
+        setShowFix(false);
+    };
+
+    const handleLanguageChange = (lang: LanguageKey) => {
+        setSelectedLang(lang);
+        setCode(LANGUAGES[lang].snippet);
+        setIsDropdownOpen(false);
         setAnalyzed(false);
         setShowFix(false);
     };
@@ -49,13 +134,47 @@ export default function AnalyzePage() {
             {/* Code Editor Panel */}
             <div className="flex-1 flex flex-col border-r border-card-border bg-[#0A0F1E] min-h-[400px] z-10">
                 {/* Editor Header */}
-                <div className="h-14 glass border-b border-card-border px-4 flex items-center justify-between flex-shrink-0">
+                <div className="h-14 glass border-b border-card-border px-4 flex items-center justify-between flex-shrink-0 relative">
                     <div className="flex items-center gap-3">
                         <div className="p-1.5 rounded bg-blue-500/10 border border-blue-500/20">
                             <FileCode className="w-4 h-4 text-primary" />
                         </div>
-                        <span className="font-medium text-sm">main.py</span>
-                        <span className="text-[10px] bg-card px-2 py-0.5 rounded text-secondary font-mono border border-card-border">Python 3.10</span>
+
+                        {/* Language Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="flex items-center gap-2 font-medium text-sm hover:text-primary transition-colors focus:outline-none"
+                            >
+                                {LANGUAGES[selectedLang].name}
+                                <ChevronDown className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isDropdownOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute top-full left-0 mt-2 w-48 bg-[#0A0F1E] border border-card-border rounded-xl shadow-2xl overflow-hidden z-50 py-1"
+                                    >
+                                        {(Object.keys(LANGUAGES) as LanguageKey[]).map((lang) => (
+                                            <button
+                                                key={lang}
+                                                onClick={() => handleLanguageChange(lang)}
+                                                className={`w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-colors ${selectedLang === lang ? 'text-primary bg-white/5' : 'text-secondary'}`}
+                                            >
+                                                {LANGUAGES[lang].name}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <span className="text-[10px] bg-card px-2 py-0.5 rounded text-secondary font-mono border border-card-border">
+                            {LANGUAGES[selectedLang].version}
+                        </span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button

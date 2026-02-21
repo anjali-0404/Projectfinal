@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { User, Bell, Shield, Key, Globe, LogOut, Check, Save, Zap, Activity, Cpu, Database, Network as NetworkIcon, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ function SettingToggle({ label, value, initialEnabled = false, desc }: { label: 
     );
 }
 
-export default function SettingsPage() {
+function SettingsContent() {
     const searchParams = useSearchParams();
     const tabParam = searchParams.get('tab');
     const [activeTab, setActiveTab] = useState(tabParam || 'profile');
@@ -75,8 +75,8 @@ export default function SettingsPage() {
 
             if (res.ok) {
                 // Instantly update the UI without refreshing the page
-                await update({ name, email }); 
-                
+                await update({ name, email });
+
                 setSaved(true);
                 setTimeout(() => setSaved(false), 3000);
             } else {
@@ -199,32 +199,32 @@ export default function SettingsPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Display Descriptor</label>
-                                            <input 
-                                                type="text" 
-                                                value={name} 
+                                            <input
+                                                type="text"
+                                                value={name}
                                                 onChange={(e) => setName(e.target.value)}
-                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" 
+                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold"
                                             />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Forensic Email</label>
-                                            <input 
-                                                type="email" 
-                                                value={email} 
+                                            <input
+                                                type="email"
+                                                value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold" 
+                                                className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className="text-[10px] text-secondary font-black uppercase tracking-widest px-1">Operational Bio</label>
-                                        <textarea 
-                                            rows={3} 
+                                        <textarea
+                                            rows={3}
                                             value={bio}
                                             onChange={(e) => setBio(e.target.value)}
-                                            placeholder="Overseeing neural security audits for the legacy API gateway systems. Expert in forensic pattern matching." 
-                                            className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold resize-none" 
+                                            placeholder="Overseeing neural security audits for the legacy API gateway systems. Expert in forensic pattern matching."
+                                            className="w-full px-5 py-3 bg-background/50 border border-card-border rounded-xl focus:outline-none focus:border-primary/50 transition-all font-bold resize-none"
                                         />
                                     </div>
                                 </div>
@@ -380,5 +380,13 @@ export default function SettingsPage() {
                 )}
             </AnimatePresence>
         </div>
+    );
+}
+
+export default function SettingsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-primary">Loading Settings...</div>}>
+            <SettingsContent />
+        </Suspense>
     );
 }
