@@ -3,7 +3,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Loader2, ChevronLeft, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -85,61 +85,72 @@ function ResetPasswordForm() {
     }
 
     return (
-        <div className="glass p-8 rounded-3xl border shadow-2xl space-y-8 max-w-md w-full mx-auto">
+        <div className="glass p-8 rounded-3xl border border-card-border shadow-2xl space-y-8 max-w-md w-full mx-auto relative z-10">
             <div className="text-center space-y-2">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <Lock className="w-6 h-6 text-primary" />
                 </div>
-                <h1 className="text-3xl font-bold">Set New Password</h1>
-                <p className="text-secondary text-sm">Enter your new password below.</p>
+                <h1 className="text-3xl font-bold tracking-tight">Set New Password</h1>
+                <p className="text-secondary text-sm">Create a secure password for your account.</p>
             </div>
 
             {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-sm">
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-sm"
+                >
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     {error}
-                </div>
+                </motion.div>
             )}
 
             {!token ? (
-                <div className="text-center">
-                    <Link href="/forgot-password" className="text-primary hover:underline">
+                <div className="text-center py-4">
+                    <p className="text-secondary text-sm mb-4">Invalid or expired reset link.</p>
+                    <Link href="/forgot-password" className="text-primary font-bold hover:underline">
                         Request a new reset link
                     </Link>
                 </div>
             ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-secondary">New Password</label>
-                        <div className="relative">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full p-4 bg-background/50 border border-card-border rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all pr-12"
-                                placeholder="••••••••"
-                                required
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary hover:text-foreground transition-colors"
-                            >
-                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black uppercase text-secondary ml-1">New Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full pl-12 pr-12 py-3 bg-background/50 border border-card-border rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary hover:text-foreground transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-secondary">Confirm Password</label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full p-4 bg-background/50 border border-card-border rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                            placeholder="••••••••"
-                            required
-                        />
+                        <div className="space-y-2">
+                            <label className="text-xs font-black uppercase text-secondary ml-1">Confirm Password</label>
+                            <div className="relative">
+                                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3 bg-background/50 border border-card-border rounded-xl text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <button
@@ -156,6 +167,12 @@ function ResetPasswordForm() {
                             "Reset Password"
                         )}
                     </button>
+
+                    <div className="text-center">
+                        <Link href="/login" className="text-sm font-bold text-secondary hover:text-foreground inline-flex items-center gap-2 transition-colors">
+                            <ChevronLeft className="w-4 h-4" /> Back to Login
+                        </Link>
+                    </div>
                 </form>
             )}
         </div>
