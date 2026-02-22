@@ -9,8 +9,54 @@ import {
     Shield, AlertTriangle, CheckCircle, BarChart3, ArrowUpRight,
     ArrowRight, Play, ExternalLink, Activity, Target, Zap,
     Search, Filter, ArrowUpDown, ChevronRight, CheckCircle2,
-    Clock, Download, FileText, Database, ShieldCheck, AlertCircle, Loader2
+    Clock, Download, FileText, Database, ShieldCheck, AlertCircle, Loader2,
+    ChevronDown, Code2
 } from 'lucide-react';
+
+const LANGUAGES_DATA = {
+    python: {
+        name: 'Python',
+        stats: [
+            { label: 'Integrity Score', value: '94.2', desc: '+2.4% from last week', icon: Shield, color: 'primary' },
+            { label: 'Active Threats', value: '12', desc: '3 high priority items', icon: AlertTriangle, color: 'vulnerable' },
+            { label: 'Fixed Issues', value: '342', desc: 'AI auto-remediated', icon: CheckCircle, color: 'safe' },
+            { label: 'Scan Volume', value: '1.2k', desc: 'Across 42 repos', icon: BarChart3, color: 'secondary' },
+        ],
+        snippet: `def secure_query(user_id):\n    # Using parameterized query\n    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))`
+    },
+    c: {
+        name: 'C',
+        stats: [
+            { label: 'Integrity Score', value: '88.1', desc: '-1.2% from last week', icon: Shield, color: 'primary' },
+            { label: 'Active Threats', value: '28', desc: 'Buffer overflow risks', icon: AlertTriangle, color: 'vulnerable' },
+            { label: 'Fixed Issues', value: '156', desc: 'Memory leaks patched', icon: CheckCircle, color: 'safe' },
+            { label: 'Scan Volume', value: '0.8k', desc: 'Kernel modules', icon: BarChart3, color: 'secondary' },
+        ],
+        snippet: `void safe_copy(char *dest, const char *src, size_t n) {\n    strncpy(dest, src, n - 1);\n    dest[n - 1] = '\\0';\n}`
+    },
+    cpp: {
+        name: 'C++',
+        stats: [
+            { label: 'Integrity Score', value: '91.5', desc: '+0.5% from last week', icon: Shield, color: 'primary' },
+            { label: 'Active Threats', value: '15', desc: 'Smart pointer audits', icon: AlertTriangle, color: 'vulnerable' },
+            { label: 'Fixed Issues', value: '210', desc: 'RAII violations fixed', icon: CheckCircle, color: 'safe' },
+            { label: 'Scan Volume', value: '2.1k', desc: 'Systems engine', icon: BarChart3, color: 'secondary' },
+        ],
+        snippet: `std::unique_ptr<User> getUser(int id) {\n    return std::make_unique<User>(db.query(id));\n}`
+    },
+    java: {
+        name: 'Java',
+        stats: [
+            { label: 'Integrity Score', value: '95.8', desc: '+1.1% from last week', icon: Shield, color: 'primary' },
+            { label: 'Active Threats', value: '5', desc: 'Log4j signature found', icon: AlertTriangle, color: 'vulnerable' },
+            { label: 'Fixed Issues', value: '412', desc: 'Spring Boot alerts', icon: CheckCircle, color: 'safe' },
+            { label: 'Scan Volume', value: '3.5k', desc: 'Enterprise microservices', icon: BarChart3, color: 'secondary' },
+        ],
+        snippet: `public User findById(Long id) {\n    return userRepository.findById(id)\n        .orElseThrow(() -> new UserNotFoundException(id));\n}`
+    }
+};
+
+type LanguageKey = keyof typeof LANGUAGES_DATA;
 
 export default function DashboardPage() {
 
@@ -21,6 +67,8 @@ export default function DashboardPage() {
     // UI STATE (your original)
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [selectedLang, setSelectedLang] = useState<LanguageKey>('python');
+    const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
     // 🔐 redirect if not logged in
     useEffect(() => {
@@ -101,9 +149,45 @@ export default function DashboardPage() {
                         Security <span className="gradient-text">Posture</span>
                     </h1>
 
-                    <p className="text-secondary text-sm mt-3 max-w-xl font-medium">
-                        Real-time telemetry and forensic analysis of your multi-language codebase.
-                    </p>
+                    <div className="flex items-center gap-4 mt-4">
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                                className="flex items-center gap-2 px-4 py-2 glass border border-card-border rounded-xl text-xs font-black uppercase tracking-widest hover:text-primary transition-all focus:outline-none"
+                            >
+                                <Code2 className="w-4 h-4" />
+                                {LANGUAGES_DATA[selectedLang].name}
+                                <ChevronDown className={`w-3 h-3 transition-transform ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isLangDropdownOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute top-full left-0 mt-2 w-40 bg-[#0A0F1E] border border-card-border rounded-2xl shadow-2xl overflow-hidden z-50 p-1"
+                                    >
+                                        {(Object.keys(LANGUAGES_DATA) as LanguageKey[]).map((lang) => (
+                                            <button
+                                                key={lang}
+                                                onClick={() => {
+                                                    setSelectedLang(lang);
+                                                    setIsLangDropdownOpen(false);
+                                                }}
+                                                className={`w-full px-4 py-2 text-left text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 transition-colors rounded-xl ${selectedLang === lang ? 'text-primary bg-primary/5' : 'text-secondary'}`}
+                                            >
+                                                {LANGUAGES_DATA[lang].name}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                        <p className="text-secondary text-sm font-medium">
+                            Forenics for <span className="text-foreground font-black">{LANGUAGES_DATA[selectedLang].name}</span> codebase.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex gap-3">
@@ -133,14 +217,9 @@ export default function DashboardPage() {
 
             {/* Grid Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
-                {[
-                    { label: 'Integrity Score', value: '94.2', desc: '+2.4% from last week', icon: Shield, color: 'primary' },
-                    { label: 'Active Threats', value: '12', desc: '3 high priority items', icon: AlertTriangle, color: 'vulnerable' },
-                    { label: 'Fixed Issues', value: '342', desc: 'AI auto-remediated', icon: CheckCircle, color: 'safe' },
-                    { label: 'Scan Volume', value: '1.2k', desc: 'Across 42 repos', icon: BarChart3, color: 'secondary' },
-                ].map((stat, i) => (
+                {LANGUAGES_DATA[selectedLang].stats.map((stat, i) => (
                     <motion.div
-                        key={i}
+                        key={selectedLang + i}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
@@ -156,7 +235,14 @@ export default function DashboardPage() {
                             <ArrowUpRight className="w-5 h-5 text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <p className="text-[10px] text-secondary uppercase font-black tracking-widest mb-1 opacity-60">{stat.label}</p>
-                        <h3 className="text-3xl font-black mb-2">{stat.value}</h3>
+                        <motion.h3
+                            key={stat.value}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-3xl font-black mb-2"
+                        >
+                            {stat.value}
+                        </motion.h3>
                         <p className={`text-[10px] font-bold ${stat.color === 'vulnerable' ? 'text-vulnerable' : (stat.color === 'safe' ? 'text-safe' : 'text-primary')}`}>
                             {stat.desc}
                         </p>
@@ -214,7 +300,7 @@ export default function DashboardPage() {
                 <div className="flex flex-col gap-6">
                     <div className="glass p-6 rounded-3xl border border-card-border bg-card/5 flex-1 relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-vulnerable via-primary to-safe"></div>
-                        <h3 className="font-black text-lg mb-8 flex items-center gap-2 italic">
+                        <h3 className="font-black text-lg mb-6 flex items-center gap-2 italic">
                             <Zap className="w-5 h-5 text-hallucinated" /> Audit Distribution
                         </h3>
 
@@ -249,7 +335,28 @@ export default function DashboardPage() {
                             ))}
                         </div>
 
-                        <div className="mt-12 pt-6 border-t border-card-border/50">
+                        {/* Language Code Snapshot */}
+                        <div className="mt-8 pt-6 border-t border-card-border/50">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary italic">Live Snapshot</h4>
+                                <span className="text-[10px] font-mono text-secondary">{LANGUAGES_DATA[selectedLang].name}</span>
+                            </div>
+                            <div className="p-4 rounded-2xl bg-black/40 border border-card-border font-mono text-[10px] text-blue-300 overflow-hidden relative group/code">
+                                <motion.pre
+                                    key={selectedLang}
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="whitespace-pre-wrap"
+                                >
+                                    {LANGUAGES_DATA[selectedLang].snippet}
+                                </motion.pre>
+                                <div className="absolute top-2 right-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8">
                             <button className="w-full py-3 glass border border-card-border rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-card transition-all flex items-center justify-center gap-2">
                                 <ExternalLink className="w-4 h-4" /> View Full Matrix
                             </button>
